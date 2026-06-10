@@ -13,13 +13,13 @@ import re
 from pathlib import Path
 from typing import Any, Dict, List, Tuple
 
-# Khớp export hợp lệ trong lab (mở rộng khi nhóm thêm doc mới — phải đồng bộ contract).
 ALLOWED_DOC_IDS = frozenset(
     {
         "policy_refund_v4",
         "sla_p1_2026",
         "it_helpdesk_faq",
         "hr_leave_policy",
+        "access_control_sop", # Thêm nguồn access_control_sop theo yêu cầu
     }
 )
 
@@ -101,15 +101,24 @@ def clean_rows(
             quarantine.append({**raw, "reason": eff_err, "effective_date_raw": eff_raw})
             continue
 
-        if doc_id == "hr_leave_policy" and eff_norm < "2026-01-01":
-            quarantine.append(
-                {
-                    **raw,
-                    "reason": "stale_hr_policy_effective_date",
-                    "effective_date_normalized": eff_norm,
-                }
-            )
-            continue
+        if doc_id == "hr_leave_policy":
+            if eff_norm < "2026-01-01":
+                quarantine.append(
+                    {
+                        **raw,
+                        "reason": "stale_hr_policy_effective_date",
+                        "effective_date_normalized": eff_norm,
+                    }
+                )
+                continue
+            if "10 ngày phép năm" in text:
+                quarantine.append(
+                    {
+                        **raw,
+                        "reason": "stale_hr_policy_text",
+                    }
+                )
+                continue
 
         if not text:
             quarantine.append({**raw, "reason": "missing_chunk_text"})
@@ -122,6 +131,27 @@ def clean_rows(
         seen_text.add(key)
 
         fixed_text = text
+        
+        # Rule 1 (New): Loại bỏ ký tự lạ '!!!'
+        if "!!!" in fixed_text:
+            fixed_text = fixed_text.replace("!!!", "").strip()
+            fixed_text += " [cleaned: removed_invalid_chars]"
+
+        # Rule 2 (New): Quarantine các chunk chứa thông báo 'nội dung không rõ ràng:'
+        if "nội dung không rõ ràng:" in fixed_text.lower():
+            quarantine.append({**raw, "reason": "unclear_content_flag"})
+            continue
+
+        # Rule 3 (New): Quarantine các chunk có độ dài bất thường (do lỗi lặp data)
+        if len(fixed_text) > 300:
+            quarantine.append({**raw, "reason": "chunk_abnormally_long"})
+            continue
+
+        # Rule 4 (New): Quarantine Ticket P2 để tránh nhầm lẫn semantic search với P1
+        if "Ticket P2" in fixed_text:
+            quarantine.append({**raw, "reason": "filter_p2_noise"})
+            continue
+
         if apply_refund_window_fix and doc_id == "policy_refund_v4":
             if "14 ngày làm việc" in fixed_text:
                 fixed_text = fixed_text.replace(

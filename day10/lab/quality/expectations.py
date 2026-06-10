@@ -112,5 +112,27 @@ def run_expectations(cleaned_rows: List[Dict[str, Any]]) -> Tuple[List[Expectati
         )
     )
 
+    # E7: Không còn chunk nào chứa "!!!"
+    bad_exclamation = [r for r in cleaned_rows if "!!!" in (r.get("chunk_text") or "")]
+    results.append(
+        ExpectationResult(
+            "no_exclamation_marks",
+            len(bad_exclamation) == 0,
+            "halt",
+            f"violations={len(bad_exclamation)}",
+        )
+    )
+
+    # E8: Không còn chunk nào quá dài (> 300 ký tự)
+    long_chunks = [r for r in cleaned_rows if len((r.get("chunk_text") or "")) > 300]
+    results.append(
+        ExpectationResult(
+            "no_abnormally_long_chunks",
+            len(long_chunks) == 0,
+            "halt",
+            f"violations={len(long_chunks)}",
+        )
+    )
+
     halt = any(not r.passed and r.severity == "halt" for r in results)
     return results, halt

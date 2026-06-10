@@ -1,0 +1,10 @@
+Ticket P1 có SLA phản hồi ban đầu 15 phút và resolution trong 4 giờ.
+Mật khẩu phải được thay đổi mỗi 90 ngày. Hệ thống nhắc nhở 7 ngày trước khi hết hạn.
+FAQ bổ sung: đổi mật khẩu qua portal self-service có thể mất tối đa 24 giờ để đồng bộ toàn hệ thống.
+Dung lượng hộp thư tiêu chuẩn là 50GB. Nếu đầy có thể xóa email cũ hoặc yêu cầu tăng dung lượng qua ticket IT-ACCESS.
+Thông báo stakeholder P1: update mỗi 30 phút cho đến khi resolve.
+Ngoại lệ không được hoàn tiền: sản phẩm thuộc danh mục hàng kỹ thuật số (license key, subscription). Đơn hàng đã áp dụng mã giảm giá Flash Sale cũng không được hoàn.
+Escalation P1: tự động escalate lên Senior Engineer nếu không có phản hồi trong 10 phút.
+Nhân viên dưới 3 năm kinh nghiệm được 12 ngày phép năm theo chính sách 2026.
+Level 1 Read Only: phê duyệt bởi Line Manager. Thời gian xử lý: 1 ngày làm việc. Áp dụng cho nhân viên mới 30 ngày đầu.
+Laptop mới được cấp trong ngày onboarding đầu tiên. Liên hệ HR hoặc IT Admin nếu có vấn đề.
